@@ -82,7 +82,7 @@ def main(json_filename:str, amount:int):
         for i in offsets:
             length = random.randint(1, int(i))
             data.append(''.join(random.sample(['z','y','x','w','v','u','t','s','r',  
-                'q','p','o','n','m','l','k','j','i','h','g','f','e','d','c','b','a'], length)))
+                'q','p','o','n','m','l','k','j','i','h','g','f','e','d','c','b','a',' '], length)))
         # generate fixed width line
         line = ''
         for i in zip(data, offsets): 
