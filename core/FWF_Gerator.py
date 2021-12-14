@@ -3,7 +3,6 @@ import time
 import os
 import json
 import random
-
 from datetime import date, timedelta, datetime
 
 def main(json_filename:str, amount:int):
@@ -20,14 +19,12 @@ def main(json_filename:str, amount:int):
 
     # open spec.json
     file_path = os.path.abspath(os.path.dirname(os.getcwd())) + '/data/' 
-
-
     try:
         with open(file_path + json_filename, 'r') as spec_file:
             spec = json.load(spec_file)
-            print ('[INFO]: Open file success.')
+            print ('[INFO]: Open spec file success.')
     except IOError as err:
-        print ('[ERROR]: Fail to open file. ' + str(err))
+        print ('[ERROR]: Fail to open spec file. ' + str(err))
         return 1    
 
     # read spec.json, validate and read offsets     
@@ -69,6 +66,16 @@ def main(json_filename:str, amount:int):
     # open destination file
     dest_file = open(file_path + dest_filename, 'wb')
 
+    # add header
+    line = ''
+    for i in zip(column_names, offsets):
+        line += ('{:<{fixed_width}}'.format(i[0], fixed_width=i[1]))
+    line += '\n'
+    # encode to windows-1252
+    line_windows1252 = line.encode('windows-1252')
+    # save to file
+    dest_file.write(line_windows1252)
+
     for n in range(1, amount+1): 
         # random generate data
         data = []
@@ -97,10 +104,12 @@ def main(json_filename:str, amount:int):
 
     # close file
     dest_file.close()
+    print ('[INFO]: Close destination file successfully.')
+    spec_file.close()
+    print ('[INFO]: Close spec file successfully.')
 
     print ("[INFO]: {} lines are generated. Used {} seconds.".format(amount, int(time.time()-start_time)))
     print ('[INFO]: Fixed width file generated successfully.')    
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", dest="InputFile", required=True, help="Spec file name", type=str)
