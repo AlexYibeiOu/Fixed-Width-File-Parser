@@ -1,5 +1,4 @@
 #!/usr/bin/python3.8
-#-*- coding: utf-8 -*-
 
 import argparse
 import time
@@ -7,6 +6,7 @@ import os
 import json
 import random
 from datetime import date, timedelta, datetime
+import chilkat2
 
 def main(json_filename:str, amount:int):
 
