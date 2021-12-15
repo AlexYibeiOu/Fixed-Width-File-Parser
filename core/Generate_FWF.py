@@ -1,3 +1,6 @@
+#!/usr/bin/python3.8
+#-*- coding: utf-8 -*-
+
 import argparse
 import time
 import os
@@ -9,30 +12,35 @@ def main(json_filename:str, amount:int):
 
     start_time = time.time()
     print ("Start at {}".format(datetime.fromtimestamp(start_time)))
+    int_line = [0,5]
 
     if (not json_filename.endswith('.json')):
-        print ('[ERROR]: please offer a Json File name ends with .json')
+        print ('[ERROR]: Please offer a Json File name ends with .json')
         return 1
     else:
         dest_filename = json_filename[:-4] + str(datetime.fromtimestamp(start_time)).replace(' ','.').replace(':','.') + '.FWF'
-        print (dest_filename)
 
     # open spec.json
     file_path = os.path.abspath(os.path.dirname(os.getcwd())) + '/data/' 
     try:
         with open(file_path + json_filename, 'r') as spec_file:
             spec = json.load(spec_file)
-            print ('[INFO]: Open spec file success.')
+            print ('[INFO]: Open the spec file successfully.')
+
+            # read spec.json
+            column_names = spec.get('ColumnNames')
+            offsets = spec.get('Offsets')
+            fixed_width_encoding = spec.get('FixedWidthEncoding')
+            include_header = spec.get('IncludeHeader')
+            delimited_encoding = spec.get('DelimitedEncoding')
+
+            spec_file.close()
+            print ('[INFO]: Close the spec file successfully.')
     except IOError as err:
-        print ('[ERROR]: Fail to open spec file. ' + str(err))
+        print ('[ERROR]: Fail to open the spec file. ' + str(err))
         return 1    
 
-    # read spec.json, validate and read offsets     
-    column_names = spec.get('ColumnNames')
-    offsets = spec.get('Offsets')
-    fixed_width_encoding = spec.get('FixedWidthEncoding')
-    include_header = spec.get('IncludeHeader')
-    delimited_encoding = spec.get('DelimitedEncoding')
+    # validate and read offsets
     if (column_names == 'None'):
         print("[ERROR]: Can't find ColumnNames in spec file.")
         return 1
@@ -61,7 +69,7 @@ def main(json_filename:str, amount:int):
         print ("[ERROR]: delimited_encoding value is not utf-8.")
         return 1
     else:
-        print ('[INFO]: Validation of spec file success.')
+        print ('[INFO]: Validation of spec file is successful.')
 
     # open destination file
     dest_file = open(file_path + dest_filename, 'wb')
@@ -79,7 +87,6 @@ def main(json_filename:str, amount:int):
     for n in range(1, amount+1): 
         # random generate data
         data = []
-        int_line = [1,2]
         current = 0
         for i in offsets:
             length = random.randint(1, int(i))
@@ -111,12 +118,10 @@ def main(json_filename:str, amount:int):
 
     # close file
     dest_file.close()
-    print ('[INFO]: Close destination file successfully.')
-    spec_file.close()
-    print ('[INFO]: Close spec file successfully.')
+    print ('[INFO]: Close the destination file successfully.')
 
     print ("[INFO]: {} lines are generated. Used {} seconds.".format(amount, int(time.time()-start_time)))
-    print ('[INFO]: Fixed width file generated successfully.')    
+    print ('[INFO]: Fixed width file: {} is generated successfully.'.format(dest_filename))    
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", dest="InputFile", required=True, help="Spec file name", type=str)
