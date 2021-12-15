@@ -79,10 +79,17 @@ def main(json_filename:str, amount:int):
     for n in range(1, amount+1): 
         # random generate data
         data = []
+        int_line = [1,2]
+        current = 0
         for i in offsets:
             length = random.randint(1, int(i))
-            data.append(''.join(random.sample(['z','y','x','w','v','u','t','s','r',  
-                'q','p','o','n','m','l','k','j','i','h','g','f','e','d','c','b','a',' '], length)))
+            if ( current in int_line ):
+                data.append(random.randint(1, 10*length-1))
+            else:
+                data.append(''.join(random.sample(['z','y','x','w','v','u','t','s','r',  
+                    'q','p','o','n','m','l','k','j','i','h','g','f','e','d','c','b','a',' '], length)))
+            current += 1
+
         # generate fixed width line
         line = ''
         for i in zip(data, offsets): 
