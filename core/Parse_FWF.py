@@ -45,8 +45,6 @@ def main(spec_filename:str, fixed_width_filename:str):
             include_header = spec.get('IncludeHeader')
             delimited_encoding = spec.get('DelimitedEncoding')
 
-            # close file
-            spec_file.close()
             print ('[INFO]: Close the spec file successfully.')
     except IOError as err:
         print ('[ERROR]: Fail to open the spec file. ' + str(err))
@@ -87,32 +85,21 @@ def main(spec_filename:str, fixed_width_filename:str):
     try:
         with open(file_path + fixed_width_filename, 'rb') as fixed_width_file:
             print ('[INFO]: Open the fixed width file successfully.')
-            
             # read file
             for line in fixed_width_file:
                 # decode windows-1252 to unicode
-                line = line.decode('windows-1252')
-                # encode unicode to utf-8
-                #line = line.encode('utf-8')
-                #print(line)
-
+                line = line.decode()
                 data = []
                 position = 0
                 for length in offsets:
                     data.append(line[position:position + length].strip())
                     position += length
-                #print (data)
-
                 # save to csv file without import csv
                 lines.append(data)
-
+            print ('[INFO]: Close the fixed width file successfully.')
     except IOError as err:
         print ('[ERROR]: Fail to open the fixed width file. ' + str(err))
         return 1
-
-
-    fixed_width_file.close()
-    print ('[INFO]: Close the fixed width file successfully.')
 
     # open csv file
     try:
@@ -121,7 +108,6 @@ def main(spec_filename:str, fixed_width_filename:str):
             csv_writer = csv.writer(csv_file, dialect='unix')
             for line in lines:
                 csv_writer.writerow(line)
-            csv_file.close()
             print ('[INFO]: Close the csv file successfully.')
             print ('[INFO]: Parse the fixed width file to csv file: {} successfully.'.format(dest_filename))
     except IOError as err:
