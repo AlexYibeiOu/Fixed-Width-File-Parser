@@ -112,8 +112,9 @@ def main(json_filename:str, amount:int):
         print ('File error:' + str(err))
         return 1   
 
-    print ("[INFO]: {} lines are generated. Used {} seconds.".format(amount, int(time.time()-start_time)))
-    print ('[INFO]: Fixed width file: {} is generated successfully.'.format(dest_filename))    
+    print ("[INFO]: Summary - {} lines are generated. Used {} seconds.".format(amount, int(time.time()-start_time)))
+    print ('[INFO]: Successfully generate this fixed-width-file. Please copy it!')
+    print ('[INFO]: {}'.format(dest_filename))    
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", dest="InputFile", required=True, help="Spec file name", type=str)
