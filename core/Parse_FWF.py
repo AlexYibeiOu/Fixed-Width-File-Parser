@@ -1,6 +1,28 @@
 #!/usr/bin/python3.8
 #-*- coding: utf-8 -*-
 
+'''
+* The program is aim to parse the fixed-width-file (with provided spec file)and 
+  generate a delimited file (CSV file now only)
+
+* The spec file is supposed to meet below requirement: 
+   1) Located in folder /data.
+   2) It is a json file with extention '.json'.
+   3) It should contains ColumnNames as a column list.
+   4) It should contains Offsets as a width list.
+   5) Number of Columnnames should equals to number of Offsets.
+   6) It should contains FixedWidthEncoding value is 'windows-1252'.
+   7) It should contains IncludeHeader value only 'True' or 'False' are accepted.
+   8) It should contains DelimitedEncoding value is 'utf-8'.
+
+* The output CSV file should meet below requirements:
+   1) It should be stored with encoding 'utf-8'
+
+* Rejected records stores in folder '/rejected/'.
+
+'''
+
+
 import argparse
 import time
 from datetime import date, timedelta, datetime
@@ -80,8 +102,12 @@ def main(spec_filename:str, fixed_width_filename:str):
     else:
         print ('[INFO]: Validation of spec file is successful.')
 
-    # open FWF file
     lines = []
+    rejected_lines = []
+    parsed_count = 0
+    saved_count = 0
+    rejected_count = 0
+    # open FWF file
     try:
         with open(file_path + fixed_width_filename, 'rb') as fixed_width_file:
             print ('[INFO]: Open the fixed width file successfully.')
@@ -91,28 +117,59 @@ def main(spec_filename:str, fixed_width_filename:str):
                 line = line.decode()
                 data = []
                 position = 0
+                line_lenght = len(line)-1
+
                 for length in offsets:
-                    data.append(line[position:position + length].strip())
+                    if (position < line_lenght):
+                        data.append(line[position:position + length].strip())
                     position += length
-                # save to csv file without import csv
-                lines.append(data)
+
+                if (position==line_lenght):
+                    # save to csv file without import csv
+                    lines.append(data)
+                    parsed_count += 1
+                else:
+                    line = line.encode(fixed_width_encoding)
+                    rejected_lines.append(line)
+                    rejected_count += 1
+                
             print ('[INFO]: Close the fixed width file successfully.')
     except IOError as err:
         print ('[ERROR]: Fail to open the fixed width file. ' + str(err))
         return 1
 
-    # open csv file
-    try:
-        with open(file_path + dest_filename, 'w', encoding='utf-8', newline='') as csv_file:
-            print ('[INFO]: Open the csv file successfully.')
-            csv_writer = csv.writer(csv_file, dialect='unix')
-            for line in lines:
-                csv_writer.writerow(line)
-            print ('[INFO]: Close the csv file successfully.')
-            print ('[INFO]: Parse the fixed width file to csv file: {} successfully.'.format(dest_filename))
-    except IOError as err:
-        print ('[ERROR]: Fail to open the csv file. ' + str(err))
-        return 1
+    if (parsed_count > 0):
+        # open csv file
+        try:
+            with open(file_path + dest_filename, 'w', encoding='utf-8', newline='') as csv_file:
+                print ('[INFO]: Open the csv file successfully.')
+                csv_writer = csv.writer(csv_file, dialect='unix')
+                for line in lines:
+                    csv_writer.writerow(line)
+                    saved_count += 1
+                print ('[INFO]: Close the CSV file successfully.')
+                print (f'[INFO]: Successfully saved lines: {saved_count}')
+                print (f'[INFO]: Successfully parsed the fixed-width-file to CSV file: {dest_filename} .')
+        except IOError as err:
+            print ('[ERROR]: Fail to open the csv file. ' + str(err))
+            return 1
+    else:
+        print ('[INFO]: No recorde parsed.')
+
+    if (rejected_count > 0):
+        file_path = file_path + 'rejected/'
+        try:
+            with open(file_path + fixed_width_filename, 'wb+' ) as rejected_file:
+                print ('[INFO]: Open the rejected file successfully.')
+            
+                for rejected_line in rejected_lines:
+                    rejected_file.write(rejected_line)
+                print (f'[INFO]: Close the rejected file successfully.')
+        except IOError as err:
+            print ('[ERROR]: Fail to open the reject file. ' + str(err))
+            return 1                                    
+        print (f'[INFO]: Rejected lines: {rejected_count}')
+        print (f'[INFO]: Rejected to file: /rejected/{dest_filename}')
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", dest="SpecFile", required=True, help="Spec file name", type=str)

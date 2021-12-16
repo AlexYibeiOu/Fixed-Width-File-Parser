@@ -1,5 +1,29 @@
 #!/usr/bin/python3.8
 
+'''
+* This program is aim to generate a fixed width file, using the provided spec.
+ 
+* The width is the offset provided in the spec file represent the length of each field.
+
+* The spec file is supposed to meet below requirement: 
+   1) Located in folder /data
+   2) It is a json file with extention .json
+   3) It should contains ColumnNames as a column list
+   4) It should contains Offsets as a width list
+   5) Number of Columnnames should equals to number of Offsets
+   6) It should contains FixedWidthEncoding value is 'windows-1252'
+   7) It should contains IncludeHeader value only 'True' or 'False' are accepted
+   8) It should contains DelimitedEncoding value is 'utf-8'
+
+* The generated fixed-width-file is supposed to:
+   1) Located in folder /data
+   2) File name start with the same of spec file and appended daytime
+   3) File extention is .FWF
+   4) Randomly generate integer/string in the file encoded with 'windows-1252'.
+   6) Which colum(s) is/are integer specify in variable int_line (hardcoded now)
+
+'''
+
 import argparse
 import time
 import os
@@ -101,7 +125,7 @@ def main(json_filename:str, amount:int):
                 line += '\n'
 
                 # encode to windows-1252 & save to file
-                dest_file.write(line.encode('windows-1252'))
+                dest_file.write(line.encode(fixed_width_encoding))
                 
                 # print screen information
                 if (n % 20000 == 0):
@@ -114,7 +138,7 @@ def main(json_filename:str, amount:int):
 
     print ("[INFO]: Summary - {} lines are generated. Used {} seconds.".format(amount, int(time.time()-start_time)))
     print ('[INFO]: Successfully generate this fixed-width-file. Please copy it!')
-    print ('[INFO]: {}'.format(dest_filename))    
+    print ('[INFO]: {}'.format(dest_filename))
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", dest="InputFile", required=True, help="Spec file name", type=str)
