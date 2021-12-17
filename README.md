@@ -2,13 +2,14 @@
 
 ## User instructions
 
-###Step 1:  Pull the image and start running the container
+###Step 1: Pull the image and start running the container
 
 ```dockerfile
 docker run -it --name python3.8_fwf ouyibei/fixed_width_file_parser bash
 ```
 
 ###Step 2: Generate fixed-width-file 
+
 ```shell
 python3 Generate_FWF.py -i spec.json -n 1000000
 ```
@@ -17,13 +18,17 @@ python3   Generate_FWF.py   -i   [spec_file]   -n   [number_of_records]
 
 ###Step 3: Parse to CSV file
 
-Copy the generated fixed-width-file name from the output information.
+Copy the generated fixed-width-file name from the output information
 
-Run below command to parse the file.
+![Screen Shot 2021-12-17 at 11.20.10](https://tva1.sinaimg.cn/large/008i3skNgy1gxgiu57s0fj30ys090wgm.jpg)
+
+Replace below FWF_file_name with the copied file name and run below command to parse the file 
 
 ```shell
 python3 Parse_FWF.py -s spec.json -f [FWF_file_anem]
 ```
+
+![Screen Shot 2021-12-17 at 11.25.37](https://tva1.sinaimg.cn/large/008i3skNgy1gxgivl65m9j313q01i74n.jpg)
 
 python3   Parse_FWF.py   -s   [spec_file]   -f    [FWF_file_anem]
 
